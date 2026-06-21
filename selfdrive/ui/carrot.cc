@@ -1504,6 +1504,9 @@ public:
         NVGcolor color_purple = nvgRGBA(138, 43, 226, 60);        // 紫色（BlueViolet）
         NVGcolor icon_color_purple = nvgRGBA(138, 43, 226, 150); // 紫色（图标）
 
+        NVGcolor color_cyan = nvgRGBA(0, 255, 255, 60);        // 青色
+        NVGcolor icon_color_cyan = nvgRGBA(0, 255, 255, 150); // 青色（图标）
+
         NVGcolor red_arrow_color = nvgRGBA(255, 0, 0, 200);
         NVGcolor yellow_arrow_color = nvgRGBA(255, 215, 0, 200);
 
@@ -1523,6 +1526,8 @@ public:
         auto amapNavi = sm["amapNavi"].getAmapNavi();
         int carrotLeftBlind = amapNavi.getLeftBlind();
         int carrotRightBlind = amapNavi.getRightBlind();
+        int leftDevice = amapNavi.getLeftDevice();
+        int rightDevice = amapNavi.getRightDevice();
 
         auto laneChangeState = meta.getLaneChangeState();
         auto laneChangeDirection = meta.getLaneChangeDirection();
@@ -1545,7 +1550,9 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[0], &color_red, false);
             }
             else if (carrotLeftBlind > 0) {
-                if(0 != (carrotLeftBlind & 8)){ //实线
+                if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
+                  ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
+                }else if(0 != (carrotLeftBlind & 8)){ //实线
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_green, false);
                 }else if(0 != (carrotLeftBlind & 2)){ //摄像头盲区
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_purple, false);
@@ -1563,7 +1570,9 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[1], &color_red, true);
             }
             else if (carrotRightBlind > 0) {
-                if(0 != (carrotRightBlind & 8)){ //实线
+                if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
+                  ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
+                }else if(0 != (carrotRightBlind & 8)){ //实线
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_green, true);
                 }else if(0 != (carrotRightBlind & 2)){ //摄像头盲区
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_purple, true);
@@ -1591,6 +1600,7 @@ public:
         bool icon_show = false;
 
         // 左侧圆形和向左箭头(从上到下)
+        //原车前雷达盲区图标绘制
         icon_show = false;
         if (leftFrontBlind) {
             int cx = center_x - horizontal_offset;
@@ -1648,13 +1658,16 @@ public:
             top_y += vertical_spacing;
         }
 
+        //激光雷达/摄像头/实线图标绘制
         icon_show = false;
         if (carrotLeftBlind > 0) {
             int cx = center_x - horizontal_offset;
             int cy = top_y + circle_radius;  // 保持在中间
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
-            if(0 != (carrotLeftBlind & 8)){ //实线
+            if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
+                nvgFillColor(s->vg, icon_color_cyan);
+            }else if(0 != (carrotLeftBlind & 8)){ //实线
                 nvgFillColor(s->vg, icon_color_green);
             }else if(0 != (carrotLeftBlind & 2)){ //摄像头盲区
                 nvgFillColor(s->vg, icon_color_purple);
@@ -1680,12 +1693,25 @@ public:
 
             icon_show = true;
         }
+        //在carrotLeftBlind绘制的圆形图案上描蓝色的边
+        else if(leftDevice & 0x01){ //激光雷达
+            int cx = center_x - horizontal_offset;
+            int cy = top_y + circle_radius;  // 保持在中间
+
+            nvgBeginPath(s->vg);
+            nvgCircle(s->vg, cx, cy, circle_radius);
+            nvgStrokeColor(s->vg, icon_color_blue);
+            nvgStrokeWidth(s->vg, 6); // 6像素描边
+            nvgStroke(s->vg);
+        }
         if (carrotRightBlind > 0) {
             int cx = center_x + horizontal_offset;
             int cy = top_y + circle_radius;  // 保持在中间
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
-            if(0 != (carrotRightBlind & 8)){ //实线
+            if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
+                nvgFillColor(s->vg, icon_color_cyan);
+            }if(0 != (carrotRightBlind & 8)){ //实线
                 nvgFillColor(s->vg, icon_color_green);
             }else if(0 != (carrotRightBlind & 2)){ //摄像头盲区
                 nvgFillColor(s->vg, icon_color_purple);
@@ -1710,6 +1736,17 @@ public:
             }
 
             icon_show = true;
+        }
+        //在carrotLeftBlind绘制的圆形图案上描蓝色的边
+        else if(rightDevice & 0x01){ //激光雷达
+            int cx = center_x + horizontal_offset;
+            int cy = top_y + circle_radius;  // 保持在中间
+
+            nvgBeginPath(s->vg);
+            nvgCircle(s->vg, cx, cy, circle_radius);
+            nvgStrokeColor(s->vg, icon_color_blue);
+            nvgStrokeWidth(s->vg, 6); // 6像素描边
+            nvgStroke(s->vg);
         }
 
         icon_show = true;
