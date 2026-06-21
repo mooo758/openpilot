@@ -272,6 +272,8 @@ class AmapNaviServ:
     msg.amapNavi.leftLine = self.shared_data.left_lane
     msg.amapNavi.rightLine = self.shared_data.right_lane
     msg.amapNavi.lineValid = self.lane_online
+    msg.amapNavi.leftDevice = ((2 if self.shared_data.camera_l else 0) + (1 if self.shared_data.lidar_l else 0))
+    msg.amapNavi.rightDevice = ((2 if self.shared_data.camera_r else 0) + (1 if self.shared_data.lidar_r else 0))
     self.pm.send('amapNavi', msg)
 
   def left_blindspot(self):

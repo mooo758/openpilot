@@ -61,6 +61,8 @@ struct AmapNavi @0xaedffd8f31e7b55d {
 	lineValid @2 : Bool;
 	leftLine @3 : Int32;
 	rightLine @4 : Int32;
+	leftDevice @5 : Int32;
+	rightDevice @6 : Int32;
 }
 
 struct CustomReserved2 @0xf35cc4560bbf6ec2 {
