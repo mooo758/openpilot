@@ -1507,6 +1507,9 @@ public:
         NVGcolor color_cyan = nvgRGBA(0, 255, 255, 60);        // 青色
         NVGcolor icon_color_cyan = nvgRGBA(0, 255, 255, 150); // 青色（图标）
 
+        NVGcolor color_pink = nvgRGBA(233, 37, 227, 60);        // 青色
+        NVGcolor icon_color_pink = nvgRGBA(233, 37, 227, 150); // 青色（图标）
+
         NVGcolor red_arrow_color = nvgRGBA(255, 0, 0, 200);
         NVGcolor yellow_arrow_color = nvgRGBA(255, 215, 0, 200);
 
@@ -1550,8 +1553,10 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[0], &color_red, false);
             }
             else if (carrotLeftBlind > 0) {
-                if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
-                  ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
+                if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1)) && (0 != (carrotLeftBlind & 2))){ //实线+激光雷达盲区+摄像头
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_pink, false);
+                }else if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
                 }else if(0 != (carrotLeftBlind & 8)){ //实线
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_green, false);
                 }else if(0 != (carrotLeftBlind & 2)){ //摄像头盲区
@@ -1570,7 +1575,9 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[1], &color_red, true);
             }
             else if (carrotRightBlind > 0) {
-                if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
+                if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1)) && (0 != (carrotRightBlind & 2))){ //实线+激光雷达盲区+摄像头
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_pink, false);
+                }else if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
                   ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
                 }else if(0 != (carrotRightBlind & 8)){ //实线
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_green, true);
@@ -1665,7 +1672,9 @@ public:
             int cy = top_y + circle_radius;  // 保持在中间
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
-            if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
+            if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1)) && (0 != (carrotLeftBlind & 2))){ //实线+激光雷达盲区+摄像头
+                nvgFillColor(s->vg, icon_color_pink);
+            }else if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
                 nvgFillColor(s->vg, icon_color_cyan);
             }else if(0 != (carrotLeftBlind & 8)){ //实线
                 nvgFillColor(s->vg, icon_color_green);
@@ -1709,9 +1718,11 @@ public:
             int cy = top_y + circle_radius;  // 保持在中间
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
-            if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
+            if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1)) && (0 != (carrotRightBlind & 2))){ //实线+激光雷达盲区+摄像头
+                nvgFillColor(s->vg, icon_color_pink);
+            }else if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
                 nvgFillColor(s->vg, icon_color_cyan);
-            }if(0 != (carrotRightBlind & 8)){ //实线
+            }else if(0 != (carrotRightBlind & 8)){ //实线
                 nvgFillColor(s->vg, icon_color_green);
             }else if(0 != (carrotRightBlind & 2)){ //摄像头盲区
                 nvgFillColor(s->vg, icon_color_purple);
