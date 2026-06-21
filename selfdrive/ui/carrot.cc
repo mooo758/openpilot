@@ -1710,7 +1710,7 @@ public:
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
             nvgStrokeColor(s->vg, icon_color_blue);
-            nvgStrokeWidth(s->vg, 6); // 6像素描边
+            nvgStrokeWidth(s->vg, 10); // 10像素描边
             nvgStroke(s->vg);
         }
         if (carrotRightBlind > 0) {
@@ -1756,7 +1756,7 @@ public:
             nvgBeginPath(s->vg);
             nvgCircle(s->vg, cx, cy, circle_radius);
             nvgStrokeColor(s->vg, icon_color_blue);
-            nvgStrokeWidth(s->vg, 6); // 6像素描边
+            nvgStrokeWidth(s->vg, 10); // 10像素描边
             nvgStroke(s->vg);
         }
 
