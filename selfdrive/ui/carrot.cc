@@ -1553,6 +1553,7 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[0], &color_red, false);
             }
             else if (carrotLeftBlind > 0) {
+                #if 0
                 if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1)) && (0 != (carrotLeftBlind & 2))){ //实线+激光雷达盲区+摄像头
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_pink, false);
                 }else if((0 != (carrotLeftBlind & 8)) && (0 != (carrotLeftBlind & 1))){ //实线+激光雷达盲区
@@ -1563,6 +1564,18 @@ public:
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_purple, false);
                 }else{ //激光雷达盲区
                     ui_draw_bsd(s, lane_barrier_vertices[0], &color_blue, false);
+                }
+                #endif
+                if((leftFrontBlind) && (0 != (carrotLeftBlind & 1)) && (0 != (carrotLeftBlind & 2))){ //原车前盲区+激光雷达盲区+摄像头
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_pink, false);
+                }else if((leftFrontBlind) && (0 != (carrotLeftBlind & 1))){ //原车前盲区+激光雷达盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
+                }else if(0 != (carrotLeftBlind & 2)){ //摄像头盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_purple, false);
+                }else if(0 != (carrotLeftBlind & 1)){ //激光雷达盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_blue, false);
+                }else if(leftFrontBlind){ //原车前盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_yellow, false);
                 }
             }
             else if (leftFrontBlind) {
@@ -1575,16 +1588,29 @@ public:
                 ui_draw_bsd(s, lane_barrier_vertices[1], &color_red, true);
             }
             else if (carrotRightBlind > 0) {
+                #if 0
                 if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1)) && (0 != (carrotRightBlind & 2))){ //实线+激光雷达盲区+摄像头
-                    ui_draw_bsd(s, lane_barrier_vertices[0], &color_pink, false);
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_pink, true);
                 }else if((0 != (carrotRightBlind & 8)) && (0 != (carrotRightBlind & 1))){ //实线+激光雷达盲区
-                  ui_draw_bsd(s, lane_barrier_vertices[0], &color_cyan, false);
+                  ui_draw_bsd(s, lane_barrier_vertices[1], &color_cyan, true);
                 }else if(0 != (carrotRightBlind & 8)){ //实线
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_green, true);
                 }else if(0 != (carrotRightBlind & 2)){ //摄像头盲区
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_purple, true);
                 }else{ //激光雷达盲区
                     ui_draw_bsd(s, lane_barrier_vertices[1], &color_blue, true);
+                }
+                #endif
+                if((rightFrontBlind) && (0 != (carrotRightBlind & 1)) && (0 != (carrotRightBlind & 2))){ //原车前盲区+激光雷达盲区+摄像头
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_pink, true);
+                }else if((rightFrontBlind) && (0 != (carrotRightBlind & 1))){ //原车前盲区+激光雷达盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_cyan, true);
+                }else if(0 != (carrotRightBlind & 2)){ //摄像头盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_purple, true);
+                }else if(0 != (carrotRightBlind & 1)){ //激光雷达盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_blue, true);
+                }else if(rightFrontBlind){ //原车前盲区
+                    ui_draw_bsd(s, lane_barrier_vertices[1], &color_yellow, true);
                 }
             }
             else if (rightFrontBlind){
