@@ -1497,7 +1497,7 @@ public:
         NVGcolor icon_color_blue = nvgRGBA(0, 0, 255, 150); //蓝色
 
         // 绿色
-        NVGcolor color_green = nvgRGBA(0, 255, 0, 60);        // 绿色
+        //NVGcolor color_green = nvgRGBA(0, 255, 0, 60);        // 绿色
         NVGcolor icon_color_green = nvgRGBA(0, 255, 0, 150); // 绿色（图标）
 
         // 紫色
