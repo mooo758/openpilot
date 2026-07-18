@@ -104,6 +104,10 @@ class SharedData:
     self.right_blind = False
     self.lidar_lblind = False #雷达盲区信号
     self.lidar_rblind = False
+    self.lidar_lfblind = False #雷达盲区信号
+    self.lidar_lbblind = False
+    self.lidar_rfblind = False
+    self.lidar_rbblind = False
     self.lidar_car_lblind = False #车身雷达盲区
     self.lidar_car_rblind = False #车身雷达盲区
     self.lf_drel = {} #雷达左前车距离
@@ -266,9 +270,11 @@ class AmapNaviServ:
     msg = messaging.new_message('amapNavi')
     msg.valid = True
     msg.amapNavi.leftBlind = ((8 if self.shared_data.left_lane_blind else 0) + (4 if self.shared_data.lidar_car_lblind else 0) +
-                              (2 if self.shared_data.left_blind else 0) + (1 if self.shared_data.lidar_lblind else 0))
+                              (2 if self.shared_data.left_blind else 0) + (1 if self.shared_data.lidar_lblind else 0) +
+                              (16 if self.shared_data.lidar_lfblind else 0) + (32 if self.shared_data.lidar_lbblind else 0))
     msg.amapNavi.rightBlind = ((8 if self.shared_data.right_lane_blind else 0) + (4 if self.shared_data.lidar_car_rblind else 0) +
-                               (2 if self.shared_data.right_blind else 0) + (1 if self.shared_data.lidar_rblind else 0))
+                               (2 if self.shared_data.right_blind else 0) + (1 if self.shared_data.lidar_rblind else 0) +
+                               (16 if self.shared_data.lidar_rfblind else 0) + (32 if self.shared_data.lidar_rbblind else 0))
     msg.amapNavi.leftLine = self.shared_data.left_lane
     msg.amapNavi.rightLine = self.shared_data.right_lane
     msg.amapNavi.lineValid = self.lane_online
@@ -654,9 +660,17 @@ class AmapNaviServ:
           if (0 == self.dynamicBlindRange and 0 == self.dynamicBlindDistance) or (1 == self.dynamicBlindRange and not self.atc_flag):
             self.shared_data.lidar_lblind = lidar_lblind
             self.shared_data.lidar_rblind = lidar_rblind
+            self.shared_data.lidar_lfblind = False
+            self.shared_data.lidar_lbblind = False
+            self.shared_data.lidar_rfblind = False
+            self.shared_data.lidar_rbblind = False
           else:
             self.shared_data.lidar_lblind = self.lf_side_object_detected or self.lb_side_object_detected
             self.shared_data.lidar_rblind = self.rf_side_object_detected or self.rb_side_object_detected
+            self.shared_data.lidar_lfblind = self.lf_side_object_detected
+            self.shared_data.lidar_lbblind = self.lb_side_object_detected
+            self.shared_data.lidar_rfblind = self.rf_side_object_detected
+            self.shared_data.lidar_rbblind = self.rb_side_object_detected
 
           #车身盲区和摄像头盲区
           self.shared_data.lidar_car_lblind = lidar_car_lblind

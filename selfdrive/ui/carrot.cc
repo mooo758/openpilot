@@ -1623,13 +1623,8 @@ public:
         int vertical_spacing = 100;
         int horizontal_offset = 150;
         int top_y = 10;
-        int arrow_body_width = 22;
-        int arrow_body_length = 23;
         int arrow_head_width = 46;
-        int arrow_head_length = 19;
-
-        // 计算整个箭头的总长度
-        int total_arrow_length = arrow_body_length + arrow_head_length;
+        int arrow_head_length = 30;
         bool icon_show = false;
 
         // 左侧圆形和向左箭头(从上到下)
@@ -1644,15 +1639,11 @@ public:
             nvgFill(s->vg);
             if(show_lane_info >= 1)
             {
+                // 中心向上的三角箭头
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
-                nvgFillColor(s->vg, red_arrow_color);
-                nvgFill(s->vg);
-                nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx - total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy + arrow_head_width/2);
+                nvgMoveTo(s->vg, cx, cy - arrow_head_length / 2);// 顶点（朝上）
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy + arrow_head_length / 2);// 左下角
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy + arrow_head_length / 2);// 右下角
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
@@ -1669,15 +1660,11 @@ public:
             nvgFill(s->vg);
             if(show_lane_info >= 1)
             {
+                // 中心向上的三角箭头
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
-                nvgFillColor(s->vg, red_arrow_color);
-                nvgFill(s->vg);
-                nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx + total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy + arrow_head_width/2);
+                nvgMoveTo(s->vg, cx, cy - arrow_head_length / 2);// 顶点（朝上）
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy + arrow_head_length / 2);// 左下角
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy + arrow_head_length / 2);// 右下角
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
@@ -1710,17 +1697,50 @@ public:
                 nvgFillColor(s->vg, icon_color_blue);
             }
             nvgFill(s->vg);
-            if(show_lane_info >= 1)
+            if(0 != (carrotLeftBlind & 16))
             {
+                // ===== 向上的三角箭头 =====
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
+                // 上箭头顶点
+                nvgMoveTo(s->vg, cx, cy - arrow_head_length - 5);
+                // 左下
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy - 5);
+                // 右下
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy - 5);
+                nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
+
+                icon_show = true;
+            }
+
+            if(0 != (carrotLeftBlind & 32))
+            {
+                // ===== 向下的三角箭头 =====
                 nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx - total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy + arrow_head_width/2);
+                // 下箭头顶点
+                nvgMoveTo(s->vg, cx, cy + arrow_head_length + 5);
+                // 左上
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy + 5);
+                // 右上
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy + 5);
+                nvgClosePath(s->vg);
+                nvgFillColor(s->vg, red_arrow_color);
+                nvgFill(s->vg);
+
+                icon_show = true;
+            }
+
+            if(!icon_show)
+            {
+                // 中心向左的三角箭头
+                nvgBeginPath(s->vg);
+                // 顶点（朝左）
+                nvgMoveTo(s->vg, cx - arrow_head_length / 2, cy);
+                // 上角
+                nvgLineTo(s->vg, cx + arrow_head_length / 2, cy - arrow_head_width / 2);
+                // 下角
+                nvgLineTo(s->vg, cx + arrow_head_length / 2, cy + arrow_head_width / 2);
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
@@ -1739,6 +1759,8 @@ public:
             nvgStrokeWidth(s->vg, 10); // 10像素描边
             nvgStroke(s->vg);
         }
+
+        icon_show = false;
         if (carrotRightBlind > 0) {
             int cx = center_x + horizontal_offset;
             int cy = top_y + circle_radius;  // 保持在中间
@@ -1756,17 +1778,50 @@ public:
                 nvgFillColor(s->vg, icon_color_blue);
             }
             nvgFill(s->vg);
-            if(show_lane_info >= 1)
+            if(0 != (carrotLeftBlind & 16))
             {
+                // ===== 向上的三角箭头 =====
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
+                // 上箭头顶点
+                nvgMoveTo(s->vg, cx, cy - arrow_head_length - 5);
+                // 左下
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy - 5);
+                // 右下
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy - 5);
+                nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
+
+                icon_show = true;
+            }
+
+            if(0 != (carrotLeftBlind & 32))
+            {
+                // ===== 向下的三角箭头 =====
                 nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx + total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy + arrow_head_width/2);
+                // 下箭头顶点
+                nvgMoveTo(s->vg, cx, cy + arrow_head_length + 5);
+                // 左上
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy + 5);
+                // 右上
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy + 5);
+                nvgClosePath(s->vg);
+                nvgFillColor(s->vg, red_arrow_color);
+                nvgFill(s->vg);
+
+                icon_show = true;
+            }
+
+            if(!icon_show)
+            {
+                // 中心向右的三角箭头
+                nvgBeginPath(s->vg);
+                // 顶点（朝右）
+                nvgMoveTo(s->vg, cx + arrow_head_length / 2, cy);
+                // 上角
+                nvgLineTo(s->vg, cx - arrow_head_length / 2, cy - arrow_head_width / 2);
+                // 下角
+                nvgLineTo(s->vg, cx - arrow_head_length / 2, cy + arrow_head_width / 2);
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, red_arrow_color);
                 nvgFill(s->vg);
@@ -1801,15 +1856,11 @@ public:
             nvgFill(s->vg);
             if(show_lane_info >= 1)
             {
+                // 中心向下的三角箭头
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
-                nvgFillColor(s->vg, yellow_arrow_color);
-                nvgFill(s->vg);
-                nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx - total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx - total_arrow_length/2 + arrow_head_length, cy + arrow_head_width/2);
+                nvgMoveTo(s->vg, cx, cy + arrow_head_length / 2);// 顶点（朝下）
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy - arrow_head_length / 2);// 左上角
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy - arrow_head_length / 2);// 右上角
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, yellow_arrow_color);
                 nvgFill(s->vg);
@@ -1826,15 +1877,11 @@ public:
             nvgFill(s->vg);
             if(show_lane_info >= 1)
             {
+                // 中心向下的三角箭头
                 nvgBeginPath(s->vg);
-                nvgRect(s->vg, cx - total_arrow_length/2, cy - arrow_body_width/2,
-                        arrow_body_length, arrow_body_width);
-                nvgFillColor(s->vg, yellow_arrow_color);
-                nvgFill(s->vg);
-                nvgBeginPath(s->vg);
-                nvgMoveTo(s->vg, cx + total_arrow_length/2, cy);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy - arrow_head_width/2);
-                nvgLineTo(s->vg, cx + total_arrow_length/2 - arrow_head_length, cy + arrow_head_width/2);
+                nvgMoveTo(s->vg, cx, cy + arrow_head_length / 2);// 顶点（朝下）
+                nvgLineTo(s->vg, cx - arrow_head_width / 2, cy - arrow_head_length / 2);// 左上角
+                nvgLineTo(s->vg, cx + arrow_head_width / 2, cy - arrow_head_length / 2);// 右上角
                 nvgClosePath(s->vg);
                 nvgFillColor(s->vg, yellow_arrow_color);
                 nvgFill(s->vg);
