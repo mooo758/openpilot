@@ -1778,7 +1778,7 @@ public:
                 nvgFillColor(s->vg, icon_color_blue);
             }
             nvgFill(s->vg);
-            if(0 != (carrotLeftBlind & 16))
+            if(0 != (carrotRightBlind & 16))
             {
                 // ===== 向上的三角箭头 =====
                 nvgBeginPath(s->vg);
@@ -1795,7 +1795,7 @@ public:
                 icon_show = true;
             }
 
-            if(0 != (carrotLeftBlind & 32))
+            if(0 != (carrotRightBlind & 32))
             {
                 // ===== 向下的三角箭头 =====
                 nvgBeginPath(s->vg);
