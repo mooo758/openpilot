@@ -1020,63 +1020,84 @@ class AmapNaviServ:
                 if f == "rb_xrel": rb_xrel, rb_xrel_alive = val, True
 
           # ---------- 主雷达速度计算 ----------
-          if lidar_id == 0:
+          if lidar_id == 0 or lidar_id == 1 or lidar_id == 2:
             if detect_side & 1:
               # 左前方
-              if lf_drel is None: lf_drel = old_info.get("lf_drel", None)  # 距离数据消抖
-              if lf_xrel is None: lf_xrel = old_info.get("lf_xrel", None)
-              self.shared_data.main_lf_drel = lf_drel
-              self.shared_data.main_lf_xrel = lf_xrel
+              if lidar_id == 0 or lidar_id == 1:
+                if lf_drel is None: lf_drel = old_info.get("lf_drel", None)  # 距离数据消抖
+                if lf_xrel is None: lf_xrel = old_info.get("lf_xrel", None)
+                self.shared_data.main_lf_drel = lf_drel
+                self.shared_data.main_lf_xrel = lf_xrel
               # 左后方
-              if lb_drel is None: lb_drel = old_info.get("lb_drel", None)  # 距离数据消抖
-              if lb_xrel is None: lb_xrel = old_info.get("lb_xrel", None)
-              self.shared_data.main_lb_drel = lb_drel
-              self.shared_data.main_lb_xrel = lb_xrel
+              if lidar_id == 0 or lidar_id == 2:
+                if lb_drel is None: lb_drel = old_info.get("lb_drel", None)  # 距离数据消抖
+                if lb_xrel is None: lb_xrel = old_info.get("lb_xrel", None)
+                self.shared_data.main_lb_drel = lb_drel
+                self.shared_data.main_lb_xrel = lb_xrel
 
-              # 左前方和左后方距离均小于1米时
-              lf_dreltmp = lf_drel if lf_drel is not None else 0.1
-              lb_dreltmp = lb_drel if lb_drel is not None else 0.
-              if lf_dreltmp <= 1000 and lb_dreltmp >= -1000 and lf_drel is not None and lb_drel is not None: #前后距离在1米内
-                pass
+              if lidar_id == 0:
+                # 左前方和左后方距离均小于1米时
+                lf_dreltmp = lf_drel if lf_drel is not None else 0.1
+                lb_dreltmp = lb_drel if lb_drel is not None else 0.
+                if lf_dreltmp <= 1000 and lb_dreltmp >= -1000 and lf_drel is not None and lb_drel is not None: #前后距离在1米内
+                  pass
+                else:
+                  lf_dreltmp = lf_drel
+                  lb_dreltmp = lb_drel
               else:
                 lf_dreltmp = lf_drel
                 lb_dreltmp = lb_drel
-              #计算左前方和左后方速度
-              self.shared_data.lf_vrel = self.leftFrontTarget.update(lf_dreltmp, dist_timems)
-              self.shared_data.lb_vrel = self.leftFrontTarget.update(lb_dreltmp, dist_timems)
-              #动态时距盲区判断
-              self.lf_object_detected = self.is_side_object_risky(lf_dreltmp, self.shared_data.lf_vrel, self.shared_data.v_ego_m,
-                                                                  self.min_front_vrel_vego_time, self.min_front_drel_vego_time)
-              self.lb_object_detected = self.is_side_object_risky(lb_dreltmp, self.shared_data.lb_vrel, self.shared_data.v_ego_m,
-                                                                  self.min_behind_vrel_vego_time, self.min_behind_drel_vego_time)
+
+              if lidar_id == 0 or lidar_id == 1:
+                #计算左前方速度
+                self.shared_data.lf_vrel = self.leftFrontTarget.update(lf_dreltmp, dist_timems)
+                #动态时距盲区判断
+                self.lf_object_detected = self.is_side_object_risky(lf_dreltmp, self.shared_data.lf_vrel, self.shared_data.v_ego_m,
+                                                                    self.min_front_vrel_vego_time, self.min_front_drel_vego_time)
+              if lidar_id == 0 or lidar_id == 2:
+                # 计算左后方速度
+                self.shared_data.lb_vrel = self.leftFrontTarget.update(lb_dreltmp, dist_timems)
+                #动态时距盲区判断
+                self.lb_object_detected = self.is_side_object_risky(lb_dreltmp, self.shared_data.lb_vrel, self.shared_data.v_ego_m,
+                                                                    self.min_behind_vrel_vego_time, self.min_behind_drel_vego_time)
             if detect_side & 2:
               # 右前方
-              if rf_drel is None: rf_drel = old_info.get("rf_drel", None)  # 距离数据消抖
-              if rf_xrel is None: rf_xrel = old_info.get("rf_xrel", None)
-              self.shared_data.main_rf_drel = rf_drel
-              self.shared_data.main_rf_xrel = rf_xrel
+              if lidar_id == 0 or lidar_id == 1:
+                if rf_drel is None: rf_drel = old_info.get("rf_drel", None)  # 距离数据消抖
+                if rf_xrel is None: rf_xrel = old_info.get("rf_xrel", None)
+                self.shared_data.main_rf_drel = rf_drel
+                self.shared_data.main_rf_xrel = rf_xrel
               # 右后方
-              if rb_drel is None: rb_drel = old_info.get("rb_drel", None)  # 距离数据消抖
-              if rb_xrel is None: rb_xrel = old_info.get("rb_xrel", None)
-              self.shared_data.main_rb_drel = rb_drel
-              self.shared_data.main_rb_xrel = rb_xrel
+              if lidar_id == 0 or lidar_id == 2:
+                if rb_drel is None: rb_drel = old_info.get("rb_drel", None)  # 距离数据消抖
+                if rb_xrel is None: rb_xrel = old_info.get("rb_xrel", None)
+                self.shared_data.main_rb_drel = rb_drel
+                self.shared_data.main_rb_xrel = rb_xrel
 
-              # 右前方和右后方距离均小于1米时
-              rf_dreltmp = rf_drel if rf_drel is not None else 0.1
-              rb_dreltmp = rb_drel if rb_drel is not None else 0.
-              if rf_dreltmp <= 1000 and rb_dreltmp >= -1000 and rf_drel is not None and rb_drel is not None: #前后距离在1米内
-                pass
+              if lidar_id == 0:
+                # 右前方和右后方距离均小于1米时
+                rf_dreltmp = rf_drel if rf_drel is not None else 0.1
+                rb_dreltmp = rb_drel if rb_drel is not None else 0.
+                if rf_dreltmp <= 1000 and rb_dreltmp >= -1000 and rf_drel is not None and rb_drel is not None: #前后距离在1米内
+                  pass
+                else:
+                  rf_dreltmp = rf_drel
+                  rb_dreltmp = rb_drel
               else:
                 rf_dreltmp = rf_drel
                 rb_dreltmp = rb_drel
-              #计算右前方和右后方速度
-              self.shared_data.rf_vrel = self.rightFrontTarget.update(rf_dreltmp, dist_timems)
-              self.shared_data.rb_vrel = self.rightBehindTarget.update(rb_dreltmp, dist_timems)
-              #动态时距盲区判断
-              self.rf_object_detected = self.is_side_object_risky(rf_dreltmp, self.shared_data.rf_vrel, self.shared_data.v_ego_m,
-                                                                  self.min_front_vrel_vego_time, self.min_front_drel_vego_time)
-              self.rb_object_detected = self.is_side_object_risky(rb_dreltmp, self.shared_data.rb_vrel, self.shared_data.v_ego_m,
-                                                                  self.min_behind_vrel_vego_time, self.min_behind_drel_vego_time)
+
+              if lidar_id == 0 or lidar_id == 1:
+                #计算右前方速度
+                self.shared_data.rf_vrel = self.rightFrontTarget.update(rf_dreltmp, dist_timems)
+                self.rf_object_detected = self.is_side_object_risky(rf_dreltmp, self.shared_data.rf_vrel, self.shared_data.v_ego_m,
+                                                                    self.min_front_vrel_vego_time, self.min_front_drel_vego_time)
+              if lidar_id == 0 or lidar_id == 2:
+                # 计算右后方速度
+                self.shared_data.rb_vrel = self.rightBehindTarget.update(rb_dreltmp, dist_timems)
+                #动态时距盲区判断
+                self.rb_object_detected = self.is_side_object_risky(rb_dreltmp, self.shared_data.rb_vrel, self.shared_data.v_ego_m,
+                                                                    self.min_behind_vrel_vego_time, self.min_behind_drel_vego_time)
               #self.rb_object_detected = self.is_side_object_risky_debug(rb_drel, self.shared_data.rb_vrel,
               #                                                          self.shared_data.v_ego_m,
               #                                                          self.min_front_vrel_vego_time,
