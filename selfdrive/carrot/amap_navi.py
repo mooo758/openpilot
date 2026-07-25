@@ -283,9 +283,11 @@ class AmapNaviServ:
     self.pm.send('amapNavi', msg)
 
   def left_blindspot(self):
-    return self.shared_data.left_blind or self.shared_data.lidar_lblind or self.shared_data.left_lane_blind
+    return (self.shared_data.left_blind or self.shared_data.lidar_lblind or self.shared_data.left_lane_blind
+            or self.shared_data.lidar_lfblind or self.shared_data.lidar_lbblind)
   def right_blindspot(self):
-    return self.shared_data.right_blind or self.shared_data.lidar_rblind or self.shared_data.right_lane_blind
+    return (self.shared_data.right_blind or self.shared_data.lidar_rblind or self.shared_data.right_lane_blind
+            or self.shared_data.lidar_rfblind or self.shared_data.lidar_rbblind)
 
   def _capnp_list_to_list(self, capnp_list, max_items=None):
     """将capnp列表转换为Python列表"""
@@ -576,6 +578,7 @@ class AmapNaviServ:
         #初始化变量
         lidar_l = lidar_r = camera_l = camera_r = False
         lidar_lblind = lidar_rblind = left_blind = right_blind = False
+        lidar_lfblind = lidar_rfblind = lidar_lbblind = lidar_rbblind = False
         lidar_car_lblind = lidar_car_rblind = False
 
         if _active_clients: #存在有客户端
@@ -606,6 +609,10 @@ class AmapNaviServ:
                   self.camera_data_timeout(ip, info)
 
                 # 获取盲区状态
+                if info.get("lidar_lfblind", False):
+                  lidar_lfblind = True
+                if info.get("lidar_lbblind", False):
+                  lidar_lbblind = True
                 if info.get("lidar_lblind", False):
                   lidar_lblind = True
 
@@ -619,6 +626,10 @@ class AmapNaviServ:
                     (_lb_drel is not None and _lb_drel > -2000 and _lb_xrel is not None and _lb_xrel < 1200)):  # 车头3米或车2米内有障碍(且侧面距离小于1.2m)
                     lidar_car_lblind = True
 
+                if info.get("lidar_rfblind", False):
+                  lidar_rfblind = True
+                if info.get("lidar_rbblind", False):
+                  lidar_rbblind = True
                 if info.get("lidar_rblind", False):
                   lidar_rblind = True
 
@@ -660,10 +671,10 @@ class AmapNaviServ:
           if (0 == self.dynamicBlindRange and 0 == self.dynamicBlindDistance) or (1 == self.dynamicBlindRange and not self.atc_flag):
             self.shared_data.lidar_lblind = lidar_lblind
             self.shared_data.lidar_rblind = lidar_rblind
-            self.shared_data.lidar_lfblind = False
-            self.shared_data.lidar_lbblind = False
-            self.shared_data.lidar_rfblind = False
-            self.shared_data.lidar_rbblind = False
+            self.shared_data.lidar_lfblind = lidar_lfblind
+            self.shared_data.lidar_lbblind = lidar_lbblind
+            self.shared_data.lidar_rfblind = lidar_rfblind
+            self.shared_data.lidar_rbblind = lidar_rbblind
           else:
             self.shared_data.lidar_lblind = self.lf_side_object_detected or self.lb_side_object_detected
             self.shared_data.lidar_rblind = self.rf_side_object_detected or self.rb_side_object_detected
@@ -913,6 +924,10 @@ class AmapNaviServ:
     right_blind: bool | None = None
     lidar_lblind: bool | None = None
     lidar_rblind: bool | None = None
+    lidar_lfblind: bool | None = None
+    lidar_rfblind: bool | None = None
+    lidar_lbblind: bool | None = None
+    lidar_rbblind: bool | None = None
 
     lf_drel: int | None = None
     lb_drel: int | None = None
@@ -969,13 +984,25 @@ class AmapNaviServ:
           dist_timems = json_obj.get("dist_time", None)  # 数据时间戳
           lidar_lblind = json_obj.get("lidar_lblind")  # 左盲区信号
           lidar_rblind = json_obj.get("lidar_rblind")  # 右盲区信号
+          lidar_lfblind = json_obj.get("lidar_lfblind")  # 左盲区信号
+          lidar_rfblind = json_obj.get("lidar_rfblind")  # 右盲区信号
+          lidar_lbblind = json_obj.get("lidar_lbblind")  # 左盲区信号
+          lidar_rbblind = json_obj.get("lidar_rbblind")  # 右盲区信号
 
           #如果不是动态盲区（则立即更新盲区标志）
           if (0 == self.dynamicBlindRange and 0 == self.dynamicBlindDistance) or (1 == self.dynamicBlindRange and not self.atc_flag):
             if lidar_lblind is not None and lidar_lblind:
               self.shared_data.lidar_lblind = True
+            if lidar_lfblind is not None and lidar_lfblind:
+              self.shared_data.lidar_lfblind = True
+            if lidar_lbblind is not None and lidar_lbblind:
+              self.shared_data.lidar_lbblind = True
             if lidar_rblind is not None and lidar_rblind:
               self.shared_data.lidar_rblind = True
+            if lidar_rfblind is not None and lidar_rfblind:
+              self.shared_data.lidar_rfblind = True
+            if lidar_rbblind is not None and lidar_rbblind:
+              self.shared_data.lidar_rbblind = True
 
           # 将 drel/xrel 数据解析并标记 alive
           for f in ["lf_drel", "lb_drel", "rf_drel", "rb_drel", "lf_xrel", "lb_xrel", "rf_xrel", "rb_xrel"]:
@@ -1103,9 +1130,17 @@ class AmapNaviServ:
         # ---------- 超时重置逻辑（2秒内无盲区数据更新则清空） ----------
         lidar_lblind_time = old_info.get("lidar_lblind_time", now)
         lidar_rblind_time = old_info.get("lidar_rblind_time", now)
+        lidar_lfblind_time = old_info.get("lidar_lfblind_time", now)
+        lidar_rfblind_time = old_info.get("lidar_rfblind_time", now)
+        lidar_lbblind_time = old_info.get("lidar_lbblind_time", now)
+        lidar_rbblind_time = old_info.get("lidar_rbblind_time", now)
 
         if (now - lidar_lblind_time) > 2. and lidar_lblind is not None: lidar_lblind = False
         if (now - lidar_rblind_time) > 2. and lidar_rblind is not None: lidar_rblind = False
+        if (now - lidar_lfblind_time) > 2. and lidar_lfblind is not None: lidar_lfblind = False
+        if (now - lidar_rfblind_time) > 2. and lidar_rfblind is not None: lidar_rfblind = False
+        if (now - lidar_lbblind_time) > 2. and lidar_lbblind is not None: lidar_lbblind = False
+        if (now - lidar_rbblind_time) > 2. and lidar_rbblind is not None: lidar_rbblind = False
 
         # ---------- 更新客户端信息 ----------
         with lock:
@@ -1119,12 +1154,20 @@ class AmapNaviServ:
             # 盲区状态更新
             "lidar_lblind": lidar_lblind if lidar_lblind is not None else old_info.get("lidar_lblind", False),
             "lidar_rblind": lidar_rblind if lidar_rblind is not None else old_info.get("lidar_rblind", False),
+            "lidar_lfblind": lidar_lfblind if lidar_lfblind is not None else old_info.get("lidar_lfblind", False),
+            "lidar_rfblind": lidar_rfblind if lidar_rfblind is not None else old_info.get("lidar_rfblind", False),
+            "lidar_lbblind": lidar_lbblind if lidar_lbblind is not None else old_info.get("lidar_lbblind", False),
+            "lidar_rbblind": lidar_rbblind if lidar_rbblind is not None else old_info.get("lidar_rbblind", False),
             # 雷达距离更新
             "lf_drel": lf_drel, "lb_drel": lb_drel, "rf_drel": rf_drel, "rb_drel": rb_drel,
             "lf_xrel": lf_xrel, "lb_xrel": lb_xrel, "rf_xrel": rf_xrel, "rb_xrel": rb_xrel,
             # 盲区状态更新时间
             "lidar_lblind_time": now if lidar_lblind is not None else old_info.get("lidar_lblind_time", now),
             "lidar_rblind_time": now if lidar_rblind is not None else old_info.get("lidar_rblind_time", now),
+            "lidar_lfblind_time": now if lidar_lfblind is not None else old_info.get("lidar_lfblind_time", now),
+            "lidar_rfblind_time": now if lidar_rfblind is not None else old_info.get("lidar_rfblind_time", now),
+            "lidar_lbblind_time": now if lidar_lbblind is not None else old_info.get("lidar_lbblind_time", now),
+            "lidar_rbblind_time": now if lidar_rbblind is not None else old_info.get("lidar_rbblind_time", now),
             # 更新距离数据时间
             "lf_drel_time": lf_drel_time, "lb_drel_time": lb_drel_time,
             "rf_drel_time": rf_drel_time, "rb_drel_time": rb_drel_time,
@@ -1344,9 +1387,17 @@ class AmapNaviServ:
     # ---------- 超时重置逻辑（2秒内无盲区数据更新则清空） ----------
     lidar_lblind_time = info.get("lidar_lblind_time", now)
     lidar_rblind_time = info.get("lidar_rblind_time", now)
+    lidar_lfblind_time = info.get("lidar_lfblind_time", now)
+    lidar_rfblind_time = info.get("lidar_rfblind_time", now)
+    lidar_lbblind_time = info.get("lidar_lbblind_time", now)
+    lidar_rbblind_time = info.get("lidar_rbblind_time", now)
 
     if (now - lidar_lblind_time) > 2. : info["lidar_lblind"] = False
     if (now - lidar_rblind_time) > 2. : info["lidar_rblind"] = False
+    if (now - lidar_lfblind_time) > 2. : info["lidar_lfblind"] = False
+    if (now - lidar_rfblind_time) > 2. : info["lidar_rfblind"] = False
+    if (now - lidar_lbblind_time) > 2. : info["lidar_lbblind"] = False
+    if (now - lidar_rbblind_time) > 2. : info["lidar_rbblind"] = False
 
     # 更新client的数据
     with lock:
