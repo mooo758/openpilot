@@ -1630,10 +1630,8 @@ class CarrotServ:
       ### roadLimitSpeed
       nRoadLimitSpeed = int(json.get("nRoadLimitSpeed", 20))
       if nRoadLimitSpeed > 0:
-        if nRoadLimitSpeed > 200:
-          nRoadLimitSpeed = (nRoadLimitSpeed - 20) / 10
-        elif nRoadLimitSpeed > 120:
-          nRoadLimitSpeed = 120
+        if nRoadLimitSpeed > 140:
+          nRoadLimitSpeed = 140
 
         # 高速公路低限速值处理，低速是自动增加偏移值
         if nRoadLimitSpeed < 60 and ((self.roadcate <= 1 and self.autoUpHighwayRoadLimit) or (self.roadcate > 1 and self.autoUpRoadLimit)):  # 高速公路 (0,1: highway)
