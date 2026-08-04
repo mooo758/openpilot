@@ -293,6 +293,9 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"CustomSteerOffset", PERSISTENT},
     {"SteerAngleOffset", PERSISTENT},
     {"CustomSR", PERSISTENT},
+    {"CustomSR2", PERSISTENT},
+    {"CustomSRSpeed", PERSISTENT},
+    {"CustomSRSpeed2", PERSISTENT},
     {"SteerRatioRate", PERSISTENT},
     {"SoftRestartTriggered", CLEAR_ON_MANAGER_START},
 

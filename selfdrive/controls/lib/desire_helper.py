@@ -391,8 +391,8 @@ class DesireHelper:
       self.showDebugLog = self.params.get_int("ShowDebugLog")
       self.autoNaviCountDownMode = self.params.get_int("AutoNaviCountDownMode")
       self.newLaneWidthDiff = self.params.get_float("NewLaneWidthDiff") * 0.1
-      self.autoEnTurnNewLaneTimeH = self.params.get_int("AutoEnTurnNewLaneTimeH")
-      self.autoEnTurnNewLaneTime = self.params.get_int("AutoEnTurnNewLaneTime")
+      self.autoEnTurnNewLaneTimeH = self.params.get_float("AutoEnTurnNewLaneTimeH") * 0.1
+      self.autoEnTurnNewLaneTime = self.params.get_float("AutoEnTurnNewLaneTime") * 0.1
       self.bsdDelayTime = self.params.get_float("BsdDelayTime") * 0.1
       self.sideBsdDelayTime = self.params.get_int("SideBsdDelayTime") * 0.1
       self.sideRelDistTime = self.params.get_int("SideRelDistTime") * 0.1
